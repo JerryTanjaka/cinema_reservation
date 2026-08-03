@@ -1,10 +1,10 @@
-package com.example.demo.model;
+package com.example.demo.model.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public record Projection(
+public record ProjectionResponse(
         UUID id,
         Instant datetime,
         BigDecimal seatPrice,
