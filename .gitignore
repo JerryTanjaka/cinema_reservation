@@ -38,6 +38,7 @@ out/
 
 .aws-sam
 **.toml
+unknown.md
 
 ### Mac OS ###
 .DS_Store
