@@ -32,4 +32,8 @@ public class Room {
 
     @OneToMany(mappedBy = "room")
     private List<Projection> projections = new ArrayList<>();
+    public void addSeat(Seat seat) {
+        seats.add(seat);
+        seat.setRoom(this);
+    }
 }
