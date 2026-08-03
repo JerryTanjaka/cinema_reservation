@@ -25,9 +25,14 @@ public class Movie {
     @Column(nullable = false)
     private String title;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "movie_genres",
+            joinColumns = @JoinColumn(name = "movie_id")
+    )
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Genre genre;
+    @Column(name = "genre", nullable = false)
+    private List<Genre> genres = new ArrayList<>();
 
     @Column(length = 2000)
     private String description;
