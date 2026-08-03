@@ -1,7 +1,8 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Projection;
-import java.util.UUID;
+import com.example.demo.repository.model.JProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProjectionRepository extends JpaRepository<Projection, UUID> {}
+import java.util.UUID;
+
+public interface ProjectionRepository extends JpaRepository<JProjection, UUID> {}
