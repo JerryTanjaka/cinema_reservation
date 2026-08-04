@@ -1,0 +1,302 @@
+openapi: 3.0.3
+info:
+  title: Cinema Reservation API
+  version: 1.0.0
+  description: API for reserving seats to cinema projections, with role-based access control.
+security:
+  - JwtAuth: []
+paths:
+  /movies:
+    put:
+      summary: Create or update a movie
+      operationId: putMovie
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 200
+      security:
+        - JwtAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '200':
+          description: Movie created or updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /reservations:
+    get:
+      summary: List reservations
+      operationId: getReservations
+      description: |
+        Allowed for EMPLOYEE and MANAGER only.
+        - CLIENT -> 403
+        - EMPLOYEE, MANAGER -> 200
+      security:
+        - JwtAuth: [EMPLOYEE, MANAGER]
+      responses:
+        '200':
+          description: List of reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /reservationById/{id}:
+    get:
+      summary: Get a reservation by id
+      operationId: getReservationById
+      description: |
+        Authenticated users only.
+        - CLIENT: 200 only if the reservation belongs to them, 403 otherwise
+        - EMPLOYEE, MANAGER -> 200
+      security:
+        - JwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The requested reservation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /reservation:
+    put:
+      summary: Create or update a reservation
+      operationId: putReservation
+      description: |
+        Allowed for EMPLOYEE and MANAGER only.
+        - CLIENT -> 403
+        - EMPLOYEE, MANAGER -> 200
+      security:
+        - JwtAuth: [EMPLOYEE, MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          description: Reservation created or updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /projection:
+    put:
+      summary: Create or update a projection
+      operationId: putProjection
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 200
+      security:
+        - JwtAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Projection'
+      responses:
+        '200':
+          description: Projection created or updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /projections:
+    get:
+      summary: List projections
+      operationId: getProjections
+      description: Accessible to everyone, no authentication required.
+      security: []
+      responses:
+        '200':
+          description: List of projections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Projection'
+components:
+  securitySchemes:
+    JwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Room:
+      type: object
+      required: [number, capacity]
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        capacity:
+          type: integer
+        seats:
+          type: array
+          items:
+            $ref: '#/components/schemas/Seat'
+        projections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Projection'
+    Seat:
+      type: object
+      required: [number]
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        room:
+          $ref: '#/components/schemas/Room'
+    Movie:
+      type: object
+      required: [title, genres, duration]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        genres:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Genre'
+        description:
+          type: string
+        duration:
+          type: string
+          description: ISO-8601 duration
+        projections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Projection'
+    Projection:
+      type: object
+      required: [datetime, seatPrice, room, movie]
+      properties:
+        id:
+          type: string
+          format: uuid
+        datetime:
+          type: string
+          format: date-time
+        seatPrice:
+          type: number
+          format: decimal
+        room:
+          $ref: '#/components/schemas/Room'
+        movie:
+          $ref: '#/components/schemas/Movie'
+        reservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reservation'
+    Reservation:
+      type: object
+      required: [createdAt, projection, user, seats]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        projection:
+          $ref: '#/components/schemas/Projection'
+        user:
+          $ref: '#/components/schemas/User'
+        seats:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Seat'
+    User:
+      type: object
+      required: [firstName, lastName, birthdate, email, password, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+    Genre:
+      type: string
+      enum: [THRILLER, ROMANCE, COMEDY, DRAMA, ACTION, SCI_FI, FANTASY, ANIMATION]
+    UserRole:
+      type: string
+      enum: [CLIENT, EMPLOYEE, MANAGER]
+  responses:
+    BadRequest:
+      description: Invalid request body
+    Unauthorized:
+      description: Missing or invalid authentication token
+    Forbidden:
+      description: Insufficient role or not the owner of the resource
+    NotFound:
+      description: Resource not found
