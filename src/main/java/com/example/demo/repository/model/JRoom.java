@@ -1,13 +1,12 @@
 package com.example.demo.repository.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "rooms")
@@ -16,24 +15,24 @@ import java.util.UUID;
 @NoArgsConstructor
 public class JRoom {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String number;
+  @Column(nullable = false)
+  private String number;
 
-    @Column(nullable = false)
-    private int capacity;
+  @Column(nullable = false)
+  private int capacity;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JSeat> seats = new ArrayList<>();
+  @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<JSeat> seats = new ArrayList<>();
 
-    @OneToMany(mappedBy = "room")
-    private List<JProjection> projections = new ArrayList<>();
+  @OneToMany(mappedBy = "room")
+  private List<JProjection> projections = new ArrayList<>();
 
-    public void addSeat(JSeat seat) {
-        seats.add(seat);
-        seat.setRoom(this);
-    }
+  public void addSeat(JSeat seat) {
+    seats.add(seat);
+    seat.setRoom(this);
+  }
 }
