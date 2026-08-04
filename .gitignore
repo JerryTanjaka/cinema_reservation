@@ -42,3 +42,7 @@ unknown.md
 
 ### Mac OS ###
 .DS_Store
+
+### Env files ###
+.env
+.env.*
