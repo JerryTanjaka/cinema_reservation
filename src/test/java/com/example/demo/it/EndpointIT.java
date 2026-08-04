@@ -3,8 +3,10 @@ package com.example.demo.it;
 import com.example.demo.conf.FacadeIT;
 import com.example.demo.endpoint.rest.security.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 public abstract class EndpointIT extends FacadeIT {
   protected static final UUID CLIENT_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -29,6 +32,13 @@ public abstract class EndpointIT extends FacadeIT {
   @Autowired protected TestRestTemplate restTemplate;
   @Autowired protected JwtTokenService jwtTokenService;
   @Autowired protected ObjectMapper objectMapper;
+
+  @BeforeEach
+  void configureHttpClient() {
+    restTemplate
+        .getRestTemplate()
+        .setRequestFactory(new JdkClientHttpRequestFactory(HttpClient.newBuilder().build()));
+  }
 
   protected String token(String role, UUID userId) {
     return jwtTokenService.generateToken(userId.toString(), List.of(role));

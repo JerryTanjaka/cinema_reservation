@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.demo.conf.FacadeIT;
 import com.example.demo.endpoint.rest.security.JwtTokenService;
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -14,10 +16,26 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 class SecurityIT extends FacadeIT {
+  private static final UUID CLIENT_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+  private static final UUID OTHER_CLIENT_ID =
+      UUID.fromString("22222222-2222-2222-2222-222222222222");
+  private static final UUID EMPLOYEE_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+  private static final UUID MANAGER_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
+  private static final UUID RESERVATION_ID =
+      UUID.fromString("40000000-0000-0000-0000-000000000001");
+
   @Autowired TestRestTemplate restTemplate;
   @Autowired JwtTokenService jwtTokenService;
+
+  @BeforeEach
+  void configureHttpClient() {
+    restTemplate
+        .getRestTemplate()
+        .setRequestFactory(new JdkClientHttpRequestFactory(HttpClient.newBuilder().build()));
+  }
 
   @Test
   void putMovies_access_rules() {
@@ -37,11 +55,12 @@ class SecurityIT extends FacadeIT {
 
   @Test
   void getReservationById_access_rules() {
-    String path = "/reservationById/" + UUID.randomUUID();
+    String path = "/reservationById/" + RESERVATION_ID;
     assertEquals(HttpStatus.UNAUTHORIZED, get(path, null));
-    assertEquals(HttpStatus.OK, get(path, token("CLIENT")));
-    assertEquals(HttpStatus.OK, get(path, token("EMPLOYEE")));
-    assertEquals(HttpStatus.OK, get(path, token("MANAGER")));
+    assertEquals(HttpStatus.OK, get(path, token("CLIENT", CLIENT_ID)));
+    assertEquals(HttpStatus.FORBIDDEN, get(path, token("CLIENT", OTHER_CLIENT_ID)));
+    assertEquals(HttpStatus.OK, get(path, token("EMPLOYEE", EMPLOYEE_ID)));
+    assertEquals(HttpStatus.OK, get(path, token("MANAGER", MANAGER_ID)));
   }
 
   @Test
@@ -80,6 +99,10 @@ class SecurityIT extends FacadeIT {
 
   private String token(String role) {
     return jwtTokenService.generateToken(UUID.randomUUID().toString(), List.of(role));
+  }
+
+  private String token(String role, UUID userId) {
+    return jwtTokenService.generateToken(userId.toString(), List.of(role));
   }
 
   private HttpStatus get(String path, String token) {
