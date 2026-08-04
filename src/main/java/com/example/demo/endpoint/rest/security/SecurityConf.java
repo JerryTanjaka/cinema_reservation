@@ -58,7 +58,8 @@ public class SecurityConf {
         .build();
   }
 
-  private void writeError(HttpServletResponse response, int status, String code) throws IOException {
+  private void writeError(HttpServletResponse response, int status, String code)
+      throws IOException {
     response.setStatus(status);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     objectMapper.writeValue(response.getWriter(), Map.of("status", status, "error", code));
