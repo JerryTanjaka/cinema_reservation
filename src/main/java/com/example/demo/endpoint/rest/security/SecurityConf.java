@@ -33,6 +33,8 @@ public class SecurityConf {
             auth ->
                 auth.requestMatchers(HttpMethod.GET, "/ping", "/health/**")
                     .permitAll()
+                    .requestMatchers("/error")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/projections")
                     .permitAll()
                     .requestMatchers(HttpMethod.PUT, "/movies")
