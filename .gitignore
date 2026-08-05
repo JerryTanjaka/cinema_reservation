@@ -43,3 +43,7 @@ unknown.md
 ### Mac OS ###
 .DS_Store
 /controller.http
+
+### Env files ###
+.env
+.env.*

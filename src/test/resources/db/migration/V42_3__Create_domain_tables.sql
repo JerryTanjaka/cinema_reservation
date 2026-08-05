@@ -1,0 +1,16 @@
+create table movie_genres (movie_id uuid not null, genre varchar(255) not null check (genre in ('THRILLER','ROMANCE','COMEDY','DRAMA','ACTION','SCI_FI','FANTASY','ANIMATION')));
+create table movies (id uuid not null, description varchar(2000), duration numeric(21,0) not null, title varchar(255) not null, primary key (id));
+create table projections (id uuid not null, datetime timestamp(6) with time zone not null, seat_price numeric(10,2) not null, movie_id uuid not null, room_id uuid not null, primary key (id));
+create table reservation_seat (reservation_id uuid not null, seat_id uuid not null);
+create table reservations (id uuid not null, created_at timestamp(6) with time zone not null, projection_id uuid not null, user_id uuid not null, primary key (id));
+create table rooms (id uuid not null, capacity integer not null, number varchar(255) not null, primary key (id));
+create table seats (id uuid not null, number varchar(255) not null, room_id uuid not null, primary key (id));
+create table users (id uuid not null, birthdate date not null, email varchar(255) not null unique, first_name varchar(255) not null, last_name varchar(255) not null, password varchar(255) not null, phone varchar(255), role varchar(255) not null check (role in ('CLIENT','EMPLOYEE','MANAGER')), primary key (id));
+alter table if exists movie_genres add constraint FK4ak9svw913jblkfgru84h2phd foreign key (movie_id) references movies;
+alter table if exists projections add constraint FKrmbh285rvso13q8x5n5dwtugf foreign key (movie_id) references movies;
+alter table if exists projections add constraint FKajo9alxjgsbt3gfqlus7qant5 foreign key (room_id) references rooms;
+alter table if exists reservation_seat add constraint FK8upc968o642tfota8klccrhy6 foreign key (seat_id) references seats;
+alter table if exists reservation_seat add constraint FK2vlhs1htn99dvc7qvko1nymk5 foreign key (reservation_id) references reservations;
+alter table if exists reservations add constraint FK1xcy23x5w4nhkkyl86qshyq67 foreign key (projection_id) references projections;
+alter table if exists reservations add constraint FKb5g9io5h54iwl2inkno50ppln foreign key (user_id) references users;
+alter table if exists seats add constraint FKg993pi7ucgy616icmddq8u335 foreign key (room_id) references rooms;

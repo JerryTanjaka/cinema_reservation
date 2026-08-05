@@ -7,9 +7,73 @@ security:
   - JwtAuth: []
 paths:
   /movies:
+    get:
+      summary: List movies
+      operationId: getMovies
+      description: Accessible to everyone, no authentication required.
+      security: []
+      responses:
+        '200':
+          description: List of movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    post:
+      summary: Create a movie
+      operationId: createMovie
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 201
+      security:
+        - JwtAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '201':
+          description: Movie created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /movies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get a movie by id
+      operationId: getMovieById
+      description: Accessible to everyone, no authentication required.
+      security: []
+      responses:
+        '200':
+          description: The requested movie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
-      summary: Create or update a movie
-      operationId: putMovie
+      summary: Update a movie
+      operationId: updateMovie
       description: |
         Allowed for MANAGER only.
         - CLIENT, EMPLOYEE -> 403
@@ -24,7 +88,7 @@ paths:
               $ref: '#/components/schemas/Movie'
       responses:
         '200':
-          description: Movie created or updated
+          description: Movie updated
           content:
             application/json:
               schema:
@@ -35,6 +99,139 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a movie
+      operationId: deleteMovie
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 204
+      security:
+        - JwtAuth: [MANAGER]
+      responses:
+        '204':
+          description: Movie deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /projections:
+    get:
+      summary: List projections
+      operationId: getProjections
+      description: Accessible to everyone, no authentication required.
+      security: []
+      responses:
+        '200':
+          description: List of projections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Projection'
+    post:
+      summary: Create a projection
+      operationId: createProjection
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 201
+      security:
+        - JwtAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Projection'
+      responses:
+        '201':
+          description: Projection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /projections/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get a projection by id
+      operationId: getProjectionById
+      description: Accessible to everyone, no authentication required.
+      security: []
+      responses:
+        '200':
+          description: The requested projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projection'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update a projection
+      operationId: updateProjection
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 200
+      security:
+        - JwtAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Projection'
+      responses:
+        '200':
+          description: Projection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a projection
+      operationId: deleteProjection
+      description: |
+        Allowed for MANAGER only.
+        - CLIENT, EMPLOYEE -> 403
+        - MANAGER -> 204
+      security:
+        - JwtAuth: [MANAGER]
+      responses:
+        '204':
+          description: Projection deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /reservations:
     get:
       summary: List reservations
@@ -58,7 +255,42 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /reservationById/{id}:
+    post:
+      summary: Create a reservation
+      operationId: createReservation
+      description: |
+        Allowed for EMPLOYEE and MANAGER only.
+        - CLIENT -> 403
+        - EMPLOYEE, MANAGER -> 201
+      security:
+        - JwtAuth: [EMPLOYEE, MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /reservations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
     get:
       summary: Get a reservation by id
       operationId: getReservationById
@@ -68,13 +300,6 @@ paths:
         - EMPLOYEE, MANAGER -> 200
       security:
         - JwtAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: The requested reservation
@@ -88,10 +313,9 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-  /reservation:
     put:
-      summary: Create or update a reservation
-      operationId: putReservation
+      summary: Update a reservation
+      operationId: updateReservation
       description: |
         Allowed for EMPLOYEE and MANAGER only.
         - CLIENT -> 403
@@ -106,7 +330,7 @@ paths:
               $ref: '#/components/schemas/Reservation'
       responses:
         '200':
-          description: Reservation created or updated
+          description: Reservation updated
           content:
             application/json:
               schema:
@@ -117,50 +341,26 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '400':
           $ref: '#/components/responses/BadRequest'
-  /projection:
-    put:
-      summary: Create or update a projection
-      operationId: putProjection
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a reservation
+      operationId: deleteReservation
       description: |
-        Allowed for MANAGER only.
-        - CLIENT, EMPLOYEE -> 403
-        - MANAGER -> 200
+        Allowed for EMPLOYEE and MANAGER only.
+        - CLIENT -> 403
+        - EMPLOYEE, MANAGER -> 204
       security:
-        - JwtAuth: [MANAGER]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Projection'
+        - JwtAuth: [EMPLOYEE, MANAGER]
       responses:
-        '200':
-          description: Projection created or updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Projection'
+        '204':
+          description: Reservation deleted
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /projections:
-    get:
-      summary: List projections
-      operationId: getProjections
-      description: Accessible to everyone, no authentication required.
-      security: []
-      responses:
-        '200':
-          description: List of projections
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Projection'
+        '404':
+          $ref: '#/components/responses/NotFound'
 components:
   securitySchemes:
     JwtAuth:
@@ -168,36 +368,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    Room:
-      type: object
-      required: [number, capacity]
-      properties:
-        id:
-          type: string
-          format: uuid
-        number:
-          type: string
-        capacity:
-          type: integer
-        seats:
-          type: array
-          items:
-            $ref: '#/components/schemas/Seat'
-        projections:
-          type: array
-          items:
-            $ref: '#/components/schemas/Projection'
-    Seat:
-      type: object
-      required: [number]
-      properties:
-        id:
-          type: string
-          format: uuid
-        number:
-          type: string
-        room:
-          $ref: '#/components/schemas/Room'
     Movie:
       type: object
       required: [title, genres, duration]
@@ -217,13 +387,9 @@ components:
         duration:
           type: string
           description: ISO-8601 duration
-        projections:
-          type: array
-          items:
-            $ref: '#/components/schemas/Projection'
     Projection:
       type: object
-      required: [datetime, seatPrice, room, movie]
+      required: [datetime, seatPrice, roomId, movieId]
       properties:
         id:
           type: string
@@ -234,17 +400,15 @@ components:
         seatPrice:
           type: number
           format: decimal
-        room:
-          $ref: '#/components/schemas/Room'
-        movie:
-          $ref: '#/components/schemas/Movie'
-        reservations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Reservation'
+        roomId:
+          type: string
+          format: uuid
+        movieId:
+          type: string
+          format: uuid
     Reservation:
       type: object
-      required: [createdAt, projection, user, seats]
+      required: [projectionId, userId, seatIds]
       properties:
         id:
           type: string
@@ -252,45 +416,21 @@ components:
         createdAt:
           type: string
           format: date-time
-        projection:
-          $ref: '#/components/schemas/Projection'
-        user:
-          $ref: '#/components/schemas/User'
-        seats:
+        projectionId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        seatIds:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/Seat'
-    User:
-      type: object
-      required: [firstName, lastName, birthdate, email, password, role]
-      properties:
-        id:
-          type: string
-          format: uuid
-        firstName:
-          type: string
-        lastName:
-          type: string
-        birthdate:
-          type: string
-          format: date
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-        phone:
-          type: string
-        role:
-          $ref: '#/components/schemas/UserRole'
+            type: string
+            format: uuid
     Genre:
       type: string
       enum: [THRILLER, ROMANCE, COMEDY, DRAMA, ACTION, SCI_FI, FANTASY, ANIMATION]
-    UserRole:
-      type: string
-      enum: [CLIENT, EMPLOYEE, MANAGER]
   responses:
     BadRequest:
       description: Invalid request body
