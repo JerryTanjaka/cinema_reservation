@@ -13,14 +13,9 @@ import org.springframework.http.ResponseEntity;
 
 class ReservationEndpointIT extends EndpointIT {
   private static final String RESERVATION_BODY =
-      "{\"createdAt\":\"2026-08-01T10:00:00Z\","
-          + "\"projection\":{\"id\":\""
-          + PROJECTION_ID
-          + "\"},"
-          + "\"user\":{\"id\":\""
-          + CLIENT_ID
-          + "\"},"
-          + "\"seats\":[{\"id\":\"50000000-0000-0000-0000-000000000001\"}]}";
+      "{\"projectionId\":\"" + PROJECTION_ID + "\","
+          + "\"userId\":\"" + CLIENT_ID + "\","
+          + "\"seatIds\":[\"50000000-0000-0000-0000-000000000001\"]}";
 
   @Test
   void get_reservations_requires_authentication() {
@@ -50,14 +45,17 @@ class ReservationEndpointIT extends EndpointIT {
   void get_reservation_by_id_requires_authentication() {
     assertEquals(
         HttpStatus.UNAUTHORIZED,
-        status(HttpMethod.GET, "/reservationById/" + RESERVATION_ID, null, null));
+        status(HttpMethod.GET, "/reservations/" + RESERVATION_ID, null, null));
   }
 
   @Test
   void get_reservation_by_id_is_allowed_for_owner_client() {
     ResponseEntity<String> response =
         exchange(
-            HttpMethod.GET, "/reservationById/" + RESERVATION_ID, token("CLIENT", CLIENT_ID), null);
+            HttpMethod.GET,
+            "/reservations/" + RESERVATION_ID,
+            token("CLIENT", CLIENT_ID),
+            null);
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -67,7 +65,7 @@ class ReservationEndpointIT extends EndpointIT {
         HttpStatus.FORBIDDEN,
         status(
             HttpMethod.GET,
-            "/reservationById/" + RESERVATION_ID,
+            "/reservations/" + RESERVATION_ID,
             token("CLIENT", OTHER_CLIENT_ID),
             null));
   }
@@ -78,14 +76,14 @@ class ReservationEndpointIT extends EndpointIT {
         HttpStatus.OK,
         status(
             HttpMethod.GET,
-            "/reservationById/" + RESERVATION_ID,
+            "/reservations/" + RESERVATION_ID,
             token("EMPLOYEE", EMPLOYEE_ID),
             null));
     assertEquals(
         HttpStatus.OK,
         status(
             HttpMethod.GET,
-            "/reservationById/" + RESERVATION_ID,
+            "/reservations/" + RESERVATION_ID,
             token("MANAGER", MANAGER_ID),
             null));
   }
@@ -96,7 +94,7 @@ class ReservationEndpointIT extends EndpointIT {
         HttpStatus.NOT_FOUND,
         status(
             HttpMethod.GET,
-            "/reservationById/" + UUID.randomUUID(),
+            "/reservations/" + UUID.randomUUID(),
             token("MANAGER", MANAGER_ID),
             null));
   }
@@ -104,24 +102,37 @@ class ReservationEndpointIT extends EndpointIT {
   @Test
   void put_reservation_requires_authentication() {
     assertEquals(
-        HttpStatus.UNAUTHORIZED, status(HttpMethod.PUT, "/reservation", null, RESERVATION_BODY));
+        HttpStatus.UNAUTHORIZED,
+        status(HttpMethod.PUT, "/reservations/" + RESERVATION_ID, null, RESERVATION_BODY));
   }
 
   @Test
   void put_reservation_is_forbidden_for_client() {
     assertEquals(
         HttpStatus.FORBIDDEN,
-        status(HttpMethod.PUT, "/reservation", token("CLIENT", CLIENT_ID), RESERVATION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/reservations/" + RESERVATION_ID,
+            token("CLIENT", CLIENT_ID),
+            RESERVATION_BODY));
   }
 
   @Test
   void put_reservation_is_allowed_for_employee_and_manager() {
     assertEquals(
         HttpStatus.OK,
-        status(HttpMethod.PUT, "/reservation", token("EMPLOYEE", EMPLOYEE_ID), RESERVATION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/reservations/" + RESERVATION_ID,
+            token("EMPLOYEE", EMPLOYEE_ID),
+            RESERVATION_BODY));
     assertEquals(
         HttpStatus.OK,
-        status(HttpMethod.PUT, "/reservation", token("MANAGER", MANAGER_ID), RESERVATION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/reservations/" + RESERVATION_ID,
+            token("MANAGER", MANAGER_ID),
+            RESERVATION_BODY));
   }
 
   private void assertContainsReservation(String body) throws Exception {

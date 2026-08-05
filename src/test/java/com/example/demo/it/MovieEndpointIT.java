@@ -12,22 +12,24 @@ class MovieEndpointIT extends EndpointIT {
 
   @Test
   void put_movies_requires_authentication() {
-    assertEquals(HttpStatus.UNAUTHORIZED, status(HttpMethod.PUT, "/movies", null, MOVIE_BODY));
+    assertEquals(
+        HttpStatus.UNAUTHORIZED, status(HttpMethod.PUT, "/movies/" + MOVIE_ID, null, MOVIE_BODY));
   }
 
   @Test
   void put_movies_is_forbidden_for_client_and_employee() {
     assertEquals(
         HttpStatus.FORBIDDEN,
-        status(HttpMethod.PUT, "/movies", token("CLIENT", CLIENT_ID), MOVIE_BODY));
+        status(HttpMethod.PUT, "/movies/" + MOVIE_ID, token("CLIENT", CLIENT_ID), MOVIE_BODY));
     assertEquals(
         HttpStatus.FORBIDDEN,
-        status(HttpMethod.PUT, "/movies", token("EMPLOYEE", EMPLOYEE_ID), MOVIE_BODY));
+        status(HttpMethod.PUT, "/movies/" + MOVIE_ID, token("EMPLOYEE", EMPLOYEE_ID), MOVIE_BODY));
   }
 
   @Test
   void put_movies_is_allowed_for_manager() {
     assertEquals(
-        HttpStatus.OK, status(HttpMethod.PUT, "/movies", token("MANAGER", MANAGER_ID), MOVIE_BODY));
+        HttpStatus.OK,
+        status(HttpMethod.PUT, "/movies/" + MOVIE_ID, token("MANAGER", MANAGER_ID), MOVIE_BODY));
   }
 }

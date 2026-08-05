@@ -13,32 +13,45 @@ import org.springframework.http.ResponseEntity;
 class ProjectionEndpointIT extends EndpointIT {
   private static final String PROJECTION_BODY =
       "{\"datetime\":\"2026-08-10T20:00:00Z\",\"seatPrice\":12.50,"
-          + "\"room\":{\"id\":\"10000000-0000-0000-0000-000000000001\"},"
-          + "\"movie\":{\"id\":\""
+          + "\"roomId\":\"10000000-0000-0000-0000-000000000001\","
+          + "\"movieId\":\""
           + MOVIE_ID
-          + "\"}}";
+          + "\"}";
 
   @Test
   void put_projection_requires_authentication() {
     assertEquals(
-        HttpStatus.UNAUTHORIZED, status(HttpMethod.PUT, "/projection", null, PROJECTION_BODY));
+        HttpStatus.UNAUTHORIZED,
+        status(HttpMethod.PUT, "/projections/" + PROJECTION_ID, null, PROJECTION_BODY));
   }
 
   @Test
   void put_projection_is_forbidden_for_client_and_employee() {
     assertEquals(
         HttpStatus.FORBIDDEN,
-        status(HttpMethod.PUT, "/projection", token("CLIENT", CLIENT_ID), PROJECTION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/projections/" + PROJECTION_ID,
+            token("CLIENT", CLIENT_ID),
+            PROJECTION_BODY));
     assertEquals(
         HttpStatus.FORBIDDEN,
-        status(HttpMethod.PUT, "/projection", token("EMPLOYEE", EMPLOYEE_ID), PROJECTION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/projections/" + PROJECTION_ID,
+            token("EMPLOYEE", EMPLOYEE_ID),
+            PROJECTION_BODY));
   }
 
   @Test
   void put_projection_is_allowed_for_manager() {
     assertEquals(
         HttpStatus.OK,
-        status(HttpMethod.PUT, "/projection", token("MANAGER", MANAGER_ID), PROJECTION_BODY));
+        status(
+            HttpMethod.PUT,
+            "/projections/" + PROJECTION_ID,
+            token("MANAGER", MANAGER_ID),
+            PROJECTION_BODY));
   }
 
   @Test

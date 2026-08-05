@@ -1,5 +1,6 @@
 package com.example.demo.endpoint.rest;
 
+import com.example.demo.exception.ForbiddenException;
 import com.example.demo.model.dto.ReservationCreateRequest;
 import com.example.demo.model.dto.ReservationResponse;
 import com.example.demo.service.ReservationService;
@@ -9,6 +10,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,8 +33,13 @@ public class ReservationController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ReservationResponse> getById(@PathVariable UUID id) {
-    return ResponseEntity.ok(reservationService.getById(id));
+  public ResponseEntity<ReservationResponse> getById(
+      @PathVariable UUID id, Authentication authentication) {
+    ReservationResponse reservation = reservationService.getById(id);
+    if (!isPrivileged(authentication) && !reservation.userId().equals(currentUserId(authentication))) {
+      throw new ForbiddenException("Reservation does not belong to the current user");
+    }
+    return ResponseEntity.ok(reservation);
   }
 
   @PutMapping("/{id}")
@@ -44,5 +52,15 @@ public class ReservationController {
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
     reservationService.delete(id);
     return ResponseEntity.noContent().build();
+  }
+
+  private boolean isPrivileged(Authentication authentication) {
+    return authentication.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .anyMatch(role -> role.equals("ROLE_EMPLOYEE") || role.equals("ROLE_MANAGER"));
+  }
+
+  private UUID currentUserId(Authentication authentication) {
+    return UUID.fromString(authentication.getName());
   }
 }

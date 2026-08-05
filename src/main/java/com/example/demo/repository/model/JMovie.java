@@ -27,6 +27,7 @@ public class JMovie {
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
   @Enumerated(EnumType.STRING)
+  @Column(name = "genre")
   private List<Genre> genres = new ArrayList<>();
 
   @Column(length = 2000)
