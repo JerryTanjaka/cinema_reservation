@@ -13,8 +13,12 @@ import org.springframework.http.ResponseEntity;
 
 class ReservationEndpointIT extends EndpointIT {
   private static final String RESERVATION_BODY =
-      "{\"projectionId\":\"" + PROJECTION_ID + "\","
-          + "\"userId\":\"" + CLIENT_ID + "\","
+      "{\"projectionId\":\""
+          + PROJECTION_ID
+          + "\","
+          + "\"userId\":\""
+          + CLIENT_ID
+          + "\","
           + "\"seatIds\":[\"50000000-0000-0000-0000-000000000001\"]}";
 
   @Test
@@ -52,10 +56,7 @@ class ReservationEndpointIT extends EndpointIT {
   void get_reservation_by_id_is_allowed_for_owner_client() {
     ResponseEntity<String> response =
         exchange(
-            HttpMethod.GET,
-            "/reservations/" + RESERVATION_ID,
-            token("CLIENT", CLIENT_ID),
-            null);
+            HttpMethod.GET, "/reservations/" + RESERVATION_ID, token("CLIENT", CLIENT_ID), null);
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -82,10 +83,7 @@ class ReservationEndpointIT extends EndpointIT {
     assertEquals(
         HttpStatus.OK,
         status(
-            HttpMethod.GET,
-            "/reservations/" + RESERVATION_ID,
-            token("MANAGER", MANAGER_ID),
-            null));
+            HttpMethod.GET, "/reservations/" + RESERVATION_ID, token("MANAGER", MANAGER_ID), null));
   }
 
   @Test

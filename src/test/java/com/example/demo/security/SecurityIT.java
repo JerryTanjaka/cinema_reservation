@@ -27,8 +27,7 @@ class SecurityIT extends FacadeIT {
   private static final UUID EMPLOYEE_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
   private static final UUID MANAGER_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
   private static final UUID MOVIE_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
-  private static final UUID PROJECTION_ID =
-      UUID.fromString("30000000-0000-0000-0000-000000000001");
+  private static final UUID PROJECTION_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
   private static final UUID RESERVATION_ID =
       UUID.fromString("40000000-0000-0000-0000-000000000001");
   private static final String MOVIE_BODY =
@@ -69,10 +68,8 @@ class SecurityIT extends FacadeIT {
     assertEquals(HttpStatus.CREATED, post("/movies", token("MANAGER"), MOVIE_BODY));
 
     assertEquals(HttpStatus.UNAUTHORIZED, put("/movies/" + MOVIE_ID, null, MOVIE_BODY));
-    assertEquals(
-        HttpStatus.FORBIDDEN, put("/movies/" + MOVIE_ID, token("CLIENT"), MOVIE_BODY));
-    assertEquals(
-        HttpStatus.FORBIDDEN, put("/movies/" + MOVIE_ID, token("EMPLOYEE"), MOVIE_BODY));
+    assertEquals(HttpStatus.FORBIDDEN, put("/movies/" + MOVIE_ID, token("CLIENT"), MOVIE_BODY));
+    assertEquals(HttpStatus.FORBIDDEN, put("/movies/" + MOVIE_ID, token("EMPLOYEE"), MOVIE_BODY));
     assertEquals(HttpStatus.OK, put("/movies/" + MOVIE_ID, token("MANAGER"), MOVIE_BODY));
 
     assertEquals(HttpStatus.UNAUTHORIZED, delete("/movies/" + MOVIE_ID, null));
@@ -99,10 +96,8 @@ class SecurityIT extends FacadeIT {
   @Test
   void projections_write_access_rules() {
     assertEquals(HttpStatus.UNAUTHORIZED, post("/projections", null, PROJECTION_BODY));
-    assertEquals(
-        HttpStatus.FORBIDDEN, post("/projections", token("CLIENT"), PROJECTION_BODY));
-    assertEquals(
-        HttpStatus.FORBIDDEN, post("/projections", token("EMPLOYEE"), PROJECTION_BODY));
+    assertEquals(HttpStatus.FORBIDDEN, post("/projections", token("CLIENT"), PROJECTION_BODY));
+    assertEquals(HttpStatus.FORBIDDEN, post("/projections", token("EMPLOYEE"), PROJECTION_BODY));
     assertEquals(HttpStatus.CREATED, post("/projections", token("MANAGER"), PROJECTION_BODY));
 
     assertEquals(
@@ -117,15 +112,14 @@ class SecurityIT extends FacadeIT {
         HttpStatus.OK, put("/projections/" + PROJECTION_ID, token("MANAGER"), PROJECTION_BODY));
 
     assertEquals(HttpStatus.UNAUTHORIZED, delete("/projections/" + PROJECTION_ID, null));
-    assertEquals(
-        HttpStatus.FORBIDDEN, delete("/projections/" + PROJECTION_ID, token("CLIENT")));
-    assertEquals(
-        HttpStatus.FORBIDDEN, delete("/projections/" + PROJECTION_ID, token("EMPLOYEE")));
+    assertEquals(HttpStatus.FORBIDDEN, delete("/projections/" + PROJECTION_ID, token("CLIENT")));
+    assertEquals(HttpStatus.FORBIDDEN, delete("/projections/" + PROJECTION_ID, token("EMPLOYEE")));
   }
 
   @Test
   void manager_can_delete_projection() throws Exception {
-    ResponseEntity<String> created = postWithBody("/projections", token("MANAGER"), PROJECTION_BODY);
+    ResponseEntity<String> created =
+        postWithBody("/projections", token("MANAGER"), PROJECTION_BODY);
     assertEquals(HttpStatus.CREATED, created.getStatusCode());
     String id = objectMapper.readTree(created.getBody()).path("id").asText();
     assertEquals(HttpStatus.NO_CONTENT, delete("/projections/" + id, token("MANAGER")));
@@ -152,16 +146,12 @@ class SecurityIT extends FacadeIT {
   @Test
   void reservations_write_access_rules() {
     assertEquals(HttpStatus.UNAUTHORIZED, post("/reservations", null, RESERVATION_BODY));
-    assertEquals(
-        HttpStatus.FORBIDDEN, post("/reservations", token("CLIENT"), RESERVATION_BODY));
-    assertEquals(
-        HttpStatus.CREATED, post("/reservations", token("EMPLOYEE"), RESERVATION_BODY));
-    assertEquals(
-        HttpStatus.CREATED, post("/reservations", token("MANAGER"), RESERVATION_BODY));
+    assertEquals(HttpStatus.FORBIDDEN, post("/reservations", token("CLIENT"), RESERVATION_BODY));
+    assertEquals(HttpStatus.CREATED, post("/reservations", token("EMPLOYEE"), RESERVATION_BODY));
+    assertEquals(HttpStatus.CREATED, post("/reservations", token("MANAGER"), RESERVATION_BODY));
 
     assertEquals(
-        HttpStatus.UNAUTHORIZED,
-        put("/reservations/" + RESERVATION_ID, null, RESERVATION_BODY));
+        HttpStatus.UNAUTHORIZED, put("/reservations/" + RESERVATION_ID, null, RESERVATION_BODY));
     assertEquals(
         HttpStatus.FORBIDDEN,
         put("/reservations/" + RESERVATION_ID, token("CLIENT"), RESERVATION_BODY));
@@ -171,8 +161,7 @@ class SecurityIT extends FacadeIT {
         HttpStatus.OK, put("/reservations/" + RESERVATION_ID, token("MANAGER"), RESERVATION_BODY));
 
     assertEquals(HttpStatus.UNAUTHORIZED, delete("/reservations/" + RESERVATION_ID, null));
-    assertEquals(
-        HttpStatus.FORBIDDEN, delete("/reservations/" + RESERVATION_ID, token("CLIENT")));
+    assertEquals(HttpStatus.FORBIDDEN, delete("/reservations/" + RESERVATION_ID, token("CLIENT")));
   }
 
   @Test

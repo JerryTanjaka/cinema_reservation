@@ -36,7 +36,8 @@ public class ReservationController {
   public ResponseEntity<ReservationResponse> getById(
       @PathVariable UUID id, Authentication authentication) {
     ReservationResponse reservation = reservationService.getById(id);
-    if (!isPrivileged(authentication) && !reservation.userId().equals(currentUserId(authentication))) {
+    if (!isPrivileged(authentication)
+        && !reservation.userId().equals(currentUserId(authentication))) {
       throw new ForbiddenException("Reservation does not belong to the current user");
     }
     return ResponseEntity.ok(reservation);
